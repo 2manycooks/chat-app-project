@@ -8,7 +8,7 @@ export function useConversations() {
     return useContext(ConversationsContext)
 }
 
-export function ConversationsProvider({ children }) {
+export function ConversationsProvider({ id, children }) {
     const [conversations, setConversations] = useLocalStorage('conversations', [])
     const [selectedConversationIndex, setSelectedConversationIndex] = useState(0)
     const { contacts } = useContacts()
@@ -17,6 +17,35 @@ export function ConversationsProvider({ children }) {
         setConversations(prevConversations => {
             return [...prevConversations, { recipients, messages: [] }]
         })
+    }
+
+    function addMessageToConversation({recipients, text, sender}) {
+        setConversations(prevConversations => {
+            let madeChange = false
+            const newMessage = { sender, text }
+            const newConversations = prevConversations.map(conversation => {
+                if (arrayEquality(conversations.recipients, recipients)) {
+                    madeChange = true
+                    return {
+                        ...conversation,
+                        messages: [...conversation.messages, newMessage]
+                    }
+                }
+            })
+
+            if (madeChange) {
+
+            } else {
+                return [
+                    ...prevConversations, 
+                    {recipients, messages: [newMessage]}
+                ]
+            }
+        })
+    }
+
+    function sendMessage(recipients, text) {
+        addMessageToConversation({ recipients, text, sender: id})
     }
 
     const formattedConversations = conversations.map((conversation, index) => {
@@ -33,6 +62,9 @@ export function ConversationsProvider({ children }) {
 
     const value = {
         conversations: formattedConversations, 
+        selectedConversation: formattedConversations
+        [selectedConversationIndex],
+        sendMessage,
         selectConversationIndex: setSelectedConversationIndex,
         createConversation
     }
@@ -42,4 +74,15 @@ export function ConversationsProvider({ children }) {
             { children }
         </ConversationsContext.Provider>
     )
+}
+
+function arrayEquality(a,b) {
+    if (a.length !== b.length) return false
+
+    a.sort()
+    b.sort()
+
+    return a.every((element, index) => {
+        return element === b[index]
+    })
 }
