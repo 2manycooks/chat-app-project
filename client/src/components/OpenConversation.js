@@ -4,7 +4,7 @@ import { useConversations } from '../contexts/ConversationsProvider'
 
 export default function OpenConversation() {
     const [text, setText] = useState('')
-    const { sendMessage, selectedConversation } = useConversations
+    const { sendMessage, selectedConversation } = useConversations()
 
 
     function handleSubmit(e) {
@@ -31,7 +31,7 @@ export default function OpenConversation() {
                         style={{ height: "75px", resize:"none"}}
                     />
                     <InputGroup.Append>
-                        <Button type="submit"></Button>
+                        <Button type="submit">Send</Button>
                     </InputGroup.Append>
                     </InputGroup>
                 </Form.Group>
